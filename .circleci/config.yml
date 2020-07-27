@@ -13,6 +13,7 @@ aliases:
       name: Install Global Dependencies
       command: |
           sudo apt-get update
+          sudo apt-get install -y nodejs npm
           sudo npm install --quiet node-gyp -g
           sudo npm install cordova -g
           sudo npm install ionic -g
@@ -55,8 +56,8 @@ jobs:
     build-monorepo-root:
         <<: *defaults
         working_directory: /tmp/workspace/monorepo-root
-        docker:
-            - image: circleci/node:13.12
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -90,8 +91,8 @@ jobs:
     build-backend-api:
         <<: *defaults
         working_directory: /tmp/workspace/backend/api
-        docker:
-            - image: circleci/node:13.12
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -126,8 +127,8 @@ jobs:
     build-admin-website-angular:
         <<: *defaults
         working_directory: /tmp/workspace/admin/website-angular
-        docker:
-            - image: circleci/node:13.12
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -195,9 +196,9 @@ jobs:
             - run:
                   name: Add new android platform
                   command: |
-                      cd packages/carrier-mobile-ionic 
+                      cd packages/carrier-mobile-ionic
                       yarn ionic cordova platform add android@8.0.0 --noresources
-                      ionic config set -g telemetry true                    
+                      ionic config set -g telemetry true
                       # echo y | android update sdk --no-ui --all --filter tools,platform-tools,extra-google-m2repository,extra-google-google_play_services,extra-android-support,extra-android-m2repository,android-25
                       # echo y | android update sdk --no-ui --all --filter build-tools-25.0.0
             - run:
@@ -257,7 +258,7 @@ jobs:
                   command: |
                       cd packages/shop-mobile-ionic
                       yarn ionic cordova platform add android@8.0.0 --noresources
-                      ionic config set -g telemetry true                    
+                      ionic config set -g telemetry true
                       # echo y | android update sdk --no-ui --all --filter tools,platform-tools,extra-google-m2repository,extra-google-google_play_services,extra-android-support,extra-android-m2repository,android-25
                       # echo y | android update sdk --no-ui --all --filter build-tools-25.0.0
             - run:
@@ -282,8 +283,8 @@ jobs:
     build-shop-website-angular:
         <<: *defaults
         working_directory: /tmp/workspace/shop/website-angular
-        docker:
-            - image: circleci/node:13.12
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -353,7 +354,7 @@ jobs:
                   command: |
                       cd packages/merchant-tablet-ionic
                       yarn ionic cordova platform add android@8.0.0 --noresources
-                      ionic config set -g telemetry true                    
+                      ionic config set -g telemetry true
                       # echo y | android update sdk --no-ui --all --filter tools,platform-tools,extra-google-m2repository,extra-google-google_play_services,extra-android-support,extra-android-m2repository,android-25
                       # echo y | android update sdk --no-ui --all --filter build-tools-25.0.0
             - run:
