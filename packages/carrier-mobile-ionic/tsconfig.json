@@ -12,7 +12,7 @@
 		"noImplicitAny": false,
 		"preserveConstEnums": true,
 		"allowSyntheticDefaultImports": true,
-		"target": "es5",
+		"target": "es2015",
 		"baseUrl": "./src",
 		"paths": {
 			"@angular/*": ["../node_modules/@angular/*"],
