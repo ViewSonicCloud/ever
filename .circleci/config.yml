@@ -26,14 +26,43 @@ aliases:
           sudo dpkg -i google-chrome.deb
           sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
           rm google-chrome.deb
-    - &install-gradle
-      name: Install Gradle
+    - &install-android
+      name: Install and configure Android SDK
       command: |
-          wget https://services.gradle.org/distributions/gradle-4.0.2-bin.zip -P /tmp
-          sudo unzip -d /opt/gradle /tmp/gradle-*.zip
-          echo 'export GRADLE_HOME=/opt/gradle/gradle-4.0.2' >> $BASH_ENV
-          echo 'export PATH=$PATH:/opt/gradle/gradle-4.0.2/bin' >> $BASH_ENV
-          source $BASH_ENV
+          sudo apt install -y wget unzip openjdk-8-jre-headless
+          export sdk_version='sdk-tools-linux-4333796.zip'
+          export android_home=/opt/android/sdk
+          sudo mkdir -p ${android_home}
+          sudo chown -R $(whoami) ${android_home}
+          wget -O /tmp/${sdk_version} -t 5 "https://dl.google.com/android/repository/${sdk_version}"
+          unzip -q /tmp/${sdk_version} -d ${android_home}
+          rm /tmp/${sdk_version}
+          export ANDROID_HOME=${android_home}
+          export PATH=${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${PATH}
+          mkdir ~/.android && echo '### User Sources for Android SDK Manager' > ~/.android/repositories.cfg
+          yes | sdkmanager --licenses && yes | sdkmanager --update
+          sdkmanager "tools" "platform-tools" "emulator"
+          sdkmanager "build-tools;28.0.1"
+          # "build-tools;25.0.0" \
+          # "build-tools;25.0.1" \
+          # "build-tools;25.0.2" \
+          # "build-tools;25.0.3" \
+          # "build-tools;26.0.1" \
+          # "build-tools;26.0.2" \
+          # "build-tools;27.0.0" \
+          # "build-tools;27.0.1" \
+          # "build-tools;27.0.2" \
+          # "build-tools;27.0.3" \
+          # 28.0.0 is failing to download from Google for some reason
+          #"build-tools;28.0.0" \
+          # "build-tools;28.0.2" \
+          # "build-tools;28.0.3" \
+          # "build-tools;29.0.0" \
+          # "build-tools;29.0.1" \
+          # "build-tools;29.0.2" \
+          # "build-tools;29.0.3" \
+          # "build-tools;30.0.0"
+          sdkmanager "platforms;android-29"
     - &install-yarn
       name: Install Latest Yarn
       command: |
@@ -133,6 +162,7 @@ jobs:
             - checkout
             - run: *install-deps
             - run: *install-yarn
+            - run: *install-android
             - run:
                   name: 'Pull Submodules'
                   command: |
@@ -163,8 +193,8 @@ jobs:
     build-carrier-mobile-ionic:
         <<: *defaults
         working_directory: /tmp/workspace/carrier/mobile-ionic
-        docker:
-            - image: circleci/android:api-29-node
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -223,8 +253,8 @@ jobs:
     build-shop-mobile-ionic:
         <<: *defaults
         working_directory: /tmp/workspace/shop/mobile-ionic
-        docker:
-            - image: circleci/android:api-29-node
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -232,6 +262,7 @@ jobs:
                   name: Install Yarn
                   command: sudo npm install -g yarn --force
             - run: *install-gradle
+            - run: *install-android
             - run:
                   name: 'Pull Submodules'
                   command: |
@@ -319,8 +350,8 @@ jobs:
     build-merchant-tablet-ionic:
         <<: *defaults
         working_directory: /tmp/workspace/merchant/tablet-ionic
-        docker:
-            - image: circleci/android:api-29-node
+        machine:
+            image: ubuntu-1604:202004-01
         steps:
             - checkout
             - run: *install-deps
@@ -328,6 +359,7 @@ jobs:
                   name: Install Yarn
                   command: sudo npm install -g yarn --force
             - run: *install-gradle
+            - run: *install-android
             - run:
                   name: 'Pull Submodules'
                   command: |
